@@ -13,10 +13,11 @@ IDE=false # 通过 IBM Cloud Shell Terminal 部署应用
 checkPara 'ide' && IDE=true # 通过 Web IDE 部署应用
 
 # 设置 REGION
-REGION=us-south # US South(Dallas, USA), North America
-checkPara 'au' && REGION=au-syd # AP South(Sydney, Australia), Asia Pacific
-checkPara 'de' && REGION=eu-de # EU Central(Frankfurt, Deutschland), Europe
-checkPara 'uk' && REGION=eu-gb # UK South(London, Great Britain), Europe
+REGION=us-south # US South (Dallas, USA), North America
+checkPara 'au' && REGION=au-syd # AP South (Sydney, Australia), Asia Pacific
+checkPara 'de' && REGION=eu-de # EU Central (Frankfurt, Deutschland), Europe
+checkPara 'uk' && REGION=eu-gb # UK South (London, Great Britain), Europe
+checkPara 'us' && REGION=us-east # US East (Washington DC, USA), North America
 
 # 通过 Web IDE 部署应用
 if $IDE; then
@@ -53,6 +54,28 @@ if $IDE; then
     ibmcloud login -a https://cloud.ibm.com -r $REGION
 fi
 
+# 安装/更新 Cloud Foundry CLI
+echo -e '\n========================  注   意  ========================'
+echo '下载 Cloud Foundry CLI 可能需要较长时间，有时甚至无法下载。'
+echo '复用现有的 Cloud Foundry CLI 环境可以加快部署的进程。'
+echo '==========================================================='
+while true;
+do
+    echo
+    read -p '您现在需要下载与安装 Cloud Foundry CLI 吗？[y/n]: ' DI_CFCLI
+    case $DI_CFCLI in
+        [Yy])
+            ibmcloud cf install
+            break
+            ;;
+        [Nn])
+            break
+            ;;
+        *)
+            echo -e '\n您的输入有误，请重新选择。'
+    esac
+done
+
 # 获取 APP_NAME & INSTANCES & MEM_SIZE
 echo -e '\n++++++++++++++++++++++++++++++++++++++++++++'
 echo '  Configure IBM Cloud Foundry Application.'
@@ -64,17 +87,17 @@ do
     echo -e -n '\n您未输入应用程序名称，请重新输入：'
     read APP_NAME
 done
-echo -e -n '\n您打算运行几个应用实例？请输入数字（默认3）：'
+echo -e -n '\n您打算运行几个应用实例？请输入数字（默认1）：'
 read INSTANCES
 if [ -z $INSTANCES ]; then 
-    echo -e '\n您未输入实例数量，将使用默认值3。'
-    INSTANCES=3
+    echo -e '\n您未输入实例数量，将使用默认值1。'
+    INSTANCES=1
 fi
-echo -e -n '\n您打算用多少 MB 内存来运行每个实例？请输入数字（默认64）：'
+echo -e -n '\n您打算用多少 MB 内存来运行每个实例？请输入数字（默认128）：'
 read MEM_SIZE
 if [ -z $MEM_SIZE ]; then 
-    echo -e '\n您未输入实例内存大小，将使用默认值64。'
-    MEM_SIZE=64
+    echo -e '\n您未输入实例内存大小，将使用默认值128。'
+    MEM_SIZE=128
 fi
 
 # 获取 LOG_LEVEL & V2RAY_PORT & ALTERID，生成或保留 UUID & WebSocket PATH
